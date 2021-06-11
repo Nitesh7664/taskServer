@@ -24,15 +24,16 @@ const addStudent = async (req, res) => {
       })
 
       const savedStudent = await newStudent.save()
-      const updatedEnrollment = await Enrollment.updateOne({_id: classExist.enrollment}, {$push: {students: savedStudent._id}})
-      const updatedStudentWithEnrollment = await Student.updateOne({username}, {$push: {enrollments: classExist.enrollment}})
+      const updatedEnrollment = await Enrollment.findOneAndUpdate({_id: classExist.enrollment}, {$push: {students: savedStudent._id}}, {new: true})
+      const updatedStudentWithEnrollment = await Student.findOneAndUpdate({username}, {$push: {enrollments: classExist.enrollment}}, {new: true})
+      await Class.findOneAndUpdate({classCode}, {$inc: {totalStudents: 1}})
 
       res.status(201).json({student: updatedStudentWithEnrollment, enrollment: updatedEnrollment})
 
 
 
    }catch(err){
-      res.status(400).json({message: 'some error occured'})
+      res.status(500).json({message: err.message})
    }
 
 }
@@ -51,13 +52,30 @@ const editStudent = async (req, res) => {
 
       const hashedPassword = await bcrypt.hash(password, 12)
 
-      const updatedStudent = await Student.updateOne({username}, {name, password: hashedPassword})
+      const updatedStudent = await Student.findOneAndUpdate({username}, {name, password: hashedPassword}, {new: true})
 
       res.status(200).json(updatedStudent)
 
    }catch(err){
-      console.log(err)
-      res.status(400).json({message: 'error'})
+      res.status(500).json({message: err.message})
+   }
+
+}
+
+const getAllStudentInClass = async (req, res) => {
+   const classCode = req.params.classCode
+   try{
+
+      const classExist = await Class.findOne({classCode})
+      if(!classExist) return res.status(404).json({message: `classCode ${classCode} Invalid`})
+
+      const classWithStudent = await Enrollment.findOne({_id: classExist.enrollment}).populate(['students', 'class'])
+
+      return res.status(200).json(classWithStudent)
+
+
+   }catch(err){
+      res.status(500).json(err.message)
    }
 
 }
@@ -66,5 +84,6 @@ const editStudent = async (req, res) => {
 
 module.exports = {
    addStudent,
-   editStudent
+   editStudent,
+   getAllStudentInClass
 }

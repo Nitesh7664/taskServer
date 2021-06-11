@@ -9,15 +9,17 @@ const studentSchema = new Schema({
    },
    username: {
       type: String,
-      required: true
+      required: true,
+      unique: true
    },
    password: {
       type: String,
-      required: true
+      required: true,
+      select: false
    },
    isCanvasUser: {
       type: Boolean,
-      default: true
+      default: true,
    },
    status: {
       type: Number,

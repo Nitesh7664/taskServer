@@ -4,15 +4,19 @@ const Schema = mongoose.Schema
 const Enrollment = require('./Enrollment')
 
 const classSchema = new Schema({
-   className: {
+   canvasSection: {
       type: String,
       required: true
    },
    classCode: {
       type: String,
-      required: true
+      required: true,
+      unique: true
    },
-   totalStudents: Number,
+   totalStudents: {
+      type: Number,
+      default: 0
+   },
    startDate: {
       type: String,
       required: true
@@ -26,10 +30,17 @@ const classSchema = new Schema({
       type: String,
       required: true
    },
-   canvasCourse: String,
+   canvasCourse: {
+      type: String,
+      required: true
+   },
    enrollment: {
       type: Schema.Types.ObjectId,
       ref: 'Enrollment'
+   },
+   canvasAddress: {
+      type: String,
+      required: true
    }
 })
 

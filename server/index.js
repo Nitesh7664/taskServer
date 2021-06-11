@@ -1,5 +1,6 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const cors = require('cors')
 const app = express();
 
 
@@ -9,6 +10,7 @@ mongoose.connect('mongodb://localhost:27017/school', () => {
    app.listen(PORT, () => console.log(`server running on port ${PORT}`))
 })
 
+app.use(cors())
 app.use(express.json())
 app.use(require('./routes/class'))
 app.use(require('./routes/student'))

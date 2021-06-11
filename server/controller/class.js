@@ -1,19 +1,21 @@
-const mongoose = require('mongoose')
+const shortid = require('shortid')
+
 const Class = require('../models/Class')
 const Enrollment = require('../models/Enrollment')
 
 const addClass = async (req, res) => {
 
-   const {className, classCode, teacher, startDate, endDate} = req.body
+   const {canvasSection, subject, teacher, startDate, endDate, canvasCourse, canvasAddress} = req.body
    console.log("entered")
    try{
-      
-      const classExist = await Class.findOne({classCode})
-      if(classExist) return res.status(409).json({message: `class having classcode ${classCode} already exists`})
+      const classCode = shortid.generate()   
 
       const newClass = new Class({
-         className,
+         canvasSection,
          classCode,
+         subject,
+         canvasCourse,
+         canvasAddress,
          teacher,
          startDate,
          endDate
@@ -24,8 +26,7 @@ const addClass = async (req, res) => {
           class: savedClass.id
        })
        const savedEnrollment = await enrollment.save()
-       const classWithEnrollment = await Class.updateOne({classCode}, {enrollment: savedEnrollment.id})
-       console.log(savedEnrollment.id, savedClass.id)
+       const classWithEnrollment = await Class.findOneAndUpdate({classCode}, {enrollment: savedEnrollment.id}, {new: true})
 
       return res.status(201).send(classWithEnrollment)
 
@@ -48,8 +49,6 @@ const getClass = async (req, res) => {
    }catch(err){
 
    }
-
-
 }
 
 
